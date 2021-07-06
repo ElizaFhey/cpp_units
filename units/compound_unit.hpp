@@ -8,6 +8,10 @@
 
 namespace units
 {
+	/*!
+	 * A compound unit is made up of one or more child units. An example of this
+	 * would be meters/second or kg/cubic meters.
+	 */
 	template<Unit... Units>
 	struct compound_unit
 	{
@@ -42,6 +46,11 @@ namespace units
 		constexpr const bool has_unit_tag_v = has_unit_tag_t<UnitType, List>::value;
 	}
 
+	/*!
+	 * Specialization of the compare_tag meta-function. Comparing a non-compound unit
+	 * to a compound one is done by making a compound_unit with a single type (of UnitA)
+	 * and calling the compare_tag specialization for multiple compound units.
+	 */
 	template<Unit UnitA, Unit... Compound>
 	struct compare_tag<UnitA, compound_unit<Compound...>>
 		: compare_tag<compound_unit<UnitA>, compound_unit<Compound...>> {};
@@ -50,6 +59,11 @@ namespace units
 	struct compare_tag<compound_unit<Compound...>, UnitType>
 		: compare_tag<compound_unit<UnitType>, compound_unit<Compound...>> {};
 
+	/*!
+	 * Specialization of the compare_tag meta-function for compound_units.
+	 * This checks that all of the unit_tags in CompA are present in the unit_tags of CompB
+	 * and vice-versa
+	 */
 	template<Unit... CompA, Unit... CompB>
 	struct compare_tag<compound_unit<CompA...>, compound_unit<CompB...>>
 	{
@@ -58,13 +72,18 @@ namespace units
 
 		constexpr static bool check_tags()
 		{
-			return (detail::has_unit_tag_v<CompA, typename b::units> && ...);
+			return (detail::has_unit_tag_v<CompA, typename b::units> && ...) && (detail::has_unit_tag_v<CompB, typename a::units> && ...);
 		}
 
 		//using same_size = std::bool_constant<detail::size_list_v<typename a::unit_tag> == detail::size_list_v<typename b::unit_tag>>;
 		using type = std::bool_constant<check_tags()>;
 	};
 
+	/*!
+	 * Specialization of the compare_exponent meta-function. To compare the exponents of a single unit A with
+	 * the compound_unit C, we promote A into a compound_unit with a single type then call the specialization
+	 * of compare_exponent on multiple compound_units.
+	 */
 	template<Unit A, Unit... C>
 	struct compare_exponent<A, compound_unit<C...>> : compare_exponent<compound_unit<A>, compound_unit<C...>>{};
 
@@ -109,6 +128,12 @@ namespace units
 		}
 	}
 
+	/*!
+	 * Specialization of compare_exponent for compound_units.
+	 * Essentially this works by making a list of unique unit_tags found in both
+	 * A and B, then doing a lexicographic comparison of the total sum of the exponents
+	 * for each unique unit_tag.
+	 */
 	template<Unit ...A, Unit ...B>
 	struct compare_exponent<compound_unit<A...>, compound_unit<B...>>
 	{
@@ -124,6 +149,14 @@ namespace units
 		using type = std::integral_constant<std::intmax_t, detail::compare_exponents<all_unique, typename unit_a::units, typename unit_b::units>()>;
 	};
 
+	/*!
+	 * Meta-function for making a compound unit with Units A and B.
+	 * Although any unit can be represented using compound_unit<...> directly,
+	 * it is sometimes convenient to use a meta-function instead. In addition,
+	 * this allows for specializations; for example, calling make_compound with
+	 * two exponent units with the same base unit
+	 * just adds the exponents instead of creating a compound_unit.
+	 */
 	template<Unit A, Unit B>
 	struct make_compound
 	{
@@ -145,6 +178,10 @@ namespace units
 		using type = make_exponent_t<T, ExponentA::value + ExponentB::value>;
 	};
 
+	/*!
+	 * Specialization for difference_unit. The difference unit of a compound unit
+	 * is compound_unit of the difference_unit of its types.
+	 */
 	template<Unit ...units>
 	struct difference_unit<compound_unit<units...>>
 	{

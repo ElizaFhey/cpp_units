@@ -5,8 +5,13 @@ namespace units
 {
 	namespace detail
 	{
+		//! empty unit_list, also used as a sentinal type for unit_list
 		struct empty_list { using unit = void; using next = void; };
 
+		/*!
+		 * unit_list provides a compile-time list of unit types.
+		 * This functions similarly to a list in functional programming languages.
+		 */
 		template<Unit UnitType, class Rest = empty_list>
 		struct unit_list
 		{
@@ -14,6 +19,9 @@ namespace units
 			using next = Rest;
 		};
 
+		/*!
+		 * Meta-function, is truthy if T is a unit_list or empty_list, false otherwise
+		 */
 		template<class T>
 		struct is_unit_list : std::false_type {};
 
@@ -23,9 +31,15 @@ namespace units
 		template<>
 		struct is_unit_list<empty_list> : std::true_type {};
 
+		/*!
+		 * UnitList concept
+		 */
 		template<class T>
 		concept UnitList = is_unit_list<T>::value;
 
+		/*!
+		 * Meta-function, pushes unit to the front of list
+		 */
 		template<Unit unit, UnitList list>
 		struct push_list
 		{
@@ -35,6 +49,9 @@ namespace units
 		template<Unit unit, UnitList list>
 		using push_list_t = typename push_list<unit, list>::type;
 
+		/*!
+		 * Meta-function, pops the unit from the front of list
+		 */
 		template<UnitList list>
 		struct pop_list
 		{
@@ -44,6 +61,9 @@ namespace units
 		template<UnitList list>
 		using pop_list_t = typename pop_list<list>::type;
 
+		/*!
+		 * Meta-function, retrieves the unit from the front of list without modifying the list
+		 */
 		template<UnitList list>
 		struct top_list
 		{
@@ -53,6 +73,9 @@ namespace units
 		template<UnitList list>
 		using top_list_t = typename top_list<list>::type;
 
+		/*!
+		 * Meta-function, returns the size of list
+		 */
 		template<UnitList list>
 		struct size_list : std::integral_constant<int, 1 + size_list<pop_list_t<list>>::value> {};
 
@@ -65,6 +88,9 @@ namespace units
 		template<UnitList list>
 		constexpr int size_list_v = size_list_t<list>::value;
 
+		/*!
+		 * Convenience meta-function for creating a list
+		 */
 		template<Unit unit, Unit... rest>
 		struct make_list
 		{
@@ -80,6 +106,10 @@ namespace units
 		template<Unit... units>
 		using make_list_t = typename make_list<units...>::type;
 
+		/*!
+		 * Meta-function, searches list for an element the same as unit and returns the list at the position.
+		 * If mulitple elements match unit, the first one found is returned.
+		 */
 		template<Unit unit, UnitList list>
 		struct find_unit_exact
 		{
@@ -98,6 +128,10 @@ namespace units
 		template<Unit unit, UnitList list>
 		using find_unit_exact_t = typename find_unit_exact<unit, list>::type;
 
+		/*!
+		 * Meta-function, searches list for an element that has the same unit_tag type as unit, then returns the list at that position.
+		 * If multiple elements match the tag, the first one found is returned.
+		 */
 		template<Unit unit, UnitList list>
 		struct find_unit_tag
 		{
@@ -116,6 +150,12 @@ namespace units
 		template<Unit unit, UnitList list>
 		using find_unit_tag_t = typename find_unit_tag<unit, list>::type;
 
+		/*!
+		 * Meta-function, scans list for elements for which Compare is truthy when called
+		 * with unit and the current element and removes them from the list.
+		 * 
+		 * @tparam Compare A meta-function which returns truthy for elements which should be removed, and falsy for elements which should be kept
+		 */
 		template<template <class, class> class Compare, Unit unit, UnitList list>
 		struct remove_item
 		{
@@ -137,6 +177,10 @@ namespace units
 		template<template <class, class> class Compare, Unit unit, UnitList list>
 		using remove_item_t = typename remove_item<Compare, unit, list>::type;
 
+		/*!
+		 * Scans the list and removes any duplicate elements such Compare will return falsy when comparing any
+		 * two items in the list.
+		 */
 		template<template<class, class> class Compare, UnitList List>
 		struct unique_items
 		{

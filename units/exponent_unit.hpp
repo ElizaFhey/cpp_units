@@ -19,6 +19,11 @@ namespace units
 		}
 	}
 
+	/*!
+	 * Represents a unit raised to a power. For example,
+	 * square meters could be represented as exponent_unit<meter, std::integral_constant<std::intmax_t, 2>>>.
+	 * Inverse units can be represented as well by using a negative exponent.
+	 */
 	template<Unit BaseUnit, class Exponent>
 	struct exponent_unit
 	{
@@ -38,12 +43,21 @@ namespace units
 		}
 	};
 
+	/*!
+	 * Helper meta-function for creating an exponent_unit.
+	 */
 	template<Unit BaseUnit, std::intmax_t N>
 	using make_exponent_t = exponent_unit<BaseUnit, std::integral_constant<std::intmax_t, N>>;
 
+	/*!
+	 * Helper meta-function for creating an inverse unit (ie, unit -> 1 / unit)
+	 */
 	template<Unit unit>
 	using inverse_unit = make_exponent_t<unit, -1>;
 
+	/*!
+	 * Specialization of the exponent_of meta-function for exponent_unit.
+	 */
 	template<Unit BaseUnit, class Exponent>
 	struct exponent_of<exponent_unit<BaseUnit, Exponent>>
 	{

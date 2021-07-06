@@ -2,6 +2,11 @@
 
 namespace units
 {
+	/*!
+	 * fundamental_unit represents the common base unit of a unit_tag group.
+	 * By definition, the to_fundamental and from_fundamental functions return
+	 * the value passed to them unchaged.
+	 */
 	template<class Unit, class ValueType>
 	struct fundamental_unit
 	{

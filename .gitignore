@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+*.pdb
+*.idb
+
+# Visual Studio specific files
+*.user
+.vs/**
+*.tlog
+*.log

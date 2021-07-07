@@ -163,9 +163,33 @@ namespace units
 	}
 
 	template<Unit A, Unit B>
+	constexpr inline delta<make_compound_t<A, B>> operator*(quantity<A> a, delta<B> b)
+	{
+		return delta<make_compound_t<A, B>>{a.value() * b.value()};
+	}
+
+	template<Unit A, Unit B>
+	constexpr inline delta<make_compound_t<A, B>> operator*(delta<A> a, quantity<B> b)
+	{
+		return delta<make_compound_t<A, B>>{a.value() * b.value()};
+	}
+
+	template<Unit A, Unit B>
 	constexpr inline auto operator/(quantity<A> a, quantity<B> b)
 		-> decltype(a * std::declval<quantity<inverse_unit<B>>>())
 	{
 		return a * quantity<inverse_unit<B>>{typename B::value_type{ 1 } / b.value()};
 	}
+
+	template<Unit A, Unit B>
+	inline make_compound_t<A, B> operator*(A, B) { return{}; }
+
+	template<Unit A, Unit B>
+	inline make_compound_t<A, inverse_unit<B>> operator/(A, B) { return{}; }
+
+	template<Unit unit>
+	inline quantity<unit> operator*(typename unit::value_type value, unit) { return quantity<unit>{value}; }
+
+	template<Unit unit>
+	inline quantity<inverse_unit<unit>> operator/(typename unit::value_type value, unit) { return quantity<inverse_unit<unit>>{value}; }
 }

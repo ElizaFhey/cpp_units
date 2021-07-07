@@ -1,10 +1,9 @@
-#include "units/units.hpp"
-#include "units/fundamental_unit.hpp"
-#include "units/linear_unit.hpp"
-#include "units/exponent_unit.hpp"
-#include "units/compound_unit.hpp"
-#include "units/quantity.hpp"
-#include "units/delta.hpp"
+#include "../units/units.hpp"
+#include "../units/fundamental_unit.hpp"
+#include "../units/linear_unit.hpp"
+#include "../units/exponent_unit.hpp"
+#include "../units/compound_unit.hpp"
+#include "../units/quantity.hpp"
 
 template<class Unit> requires units::Unit<Unit>
 constexpr auto to_fundamental(auto val) { return Unit::to_fundamental(val); }
@@ -19,6 +18,7 @@ namespace static_tests
 
 	struct meter : units::fundamental_unit<meter, double> {};
 	struct celsius : units::fundamental_unit<celsius, double> {};
+	struct second : units::fundamental_unit<second, double> {};
 
 	using millimeter = units::scaled_unit<meter, units::ratio<1000>>;
 	using fahrenheit = units::linear_unit<celsius, units::ratio<9, 5>, std::integral_constant<int, 32>>;
@@ -81,4 +81,27 @@ namespace static_tests
 	static_assert(units::similar_units_v<m10_t, meter>, "Incorrect similar units");
 	constexpr quantity<meter> m10 = m9 / quantity<millimeter>{100};
 	static_assert(m10.value() == 5, "Incorrect div value");
+
+	using velocity = units::make_compound_t<meter, units::inverse_unit<second>>;
+	using acceleration = units::make_compound_t<velocity, units::inverse_unit<second>>;
+	static_assert(std::is_same<acceleration, units::compound_unit<meter, units::inverse_unit<second>, units::inverse_unit<second>>>::value, "Incorrect acceleration type");
+
+	using velo1 = units::make_compound_t<second, acceleration>;
+	using velo2 = units::make_compound_t<acceleration, second>;
+	static_assert(units::similar_units_v<velo1, velocity>, "Incorrect velocity type");
+	static_assert(units::similar_units_v<velo2, velocity>, "Incorrect velocity type");
+
+	constexpr auto p1 = delta<second>{ 1 } *delta<second>{1} * quantity<acceleration>{ 1 };
+	constexpr auto p2 = delta<second>{ 1 } *quantity<velocity>{1};
+	using p1_t = decltype(p1);
+	using p2_t = decltype(p2);
+	constexpr std::intmax_t diff = units::compare_exponent_v<typename p1_t::unit_type, meter>;
+	constexpr bool cmp = units::compare_tag_v<typename p1_t::unit_type, meter>;
+	constexpr bool cmp1 = units::detail::has_unit_tag_v<meter, typename p1_t::unit_type::units>;
+	static_assert(units::similar_units_v<typename p1_t::unit_type, typename p2_t::unit_type>, "Incorrect position type");
+	static_assert(units::similar_units_v<meter, units::difference_unit_t<meter>>, "Incorrect difference type");
+	using p1_sum = units::detail::sum_exponent<second, units::detail::pop_list_t<units::detail::find_unit_tag_t<second, typename p1_t::unit_type::units>>>;
+	static_assert(p1_sum::value == 0, "Incorrect exponent sum");
+	static_assert(units::similar_units_v<typename p1_t::unit_type, meter>, "Incorrect position type");
+	static_assert(units::similar_units_v<typename p2_t::unit_type, meter>, "Incorrect position type");
 }

@@ -22,6 +22,9 @@
     <Filter Include="Source Files\tests">
       <UniqueIdentifier>{36621127-07bc-4c45-b4fe-bc174daccc4c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\units\systems">
+      <UniqueIdentifier>{a9981175-673c-4774-8193-26758231be42}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="units\fundamental_unit.hpp">
@@ -54,10 +57,25 @@
     <ClInclude Include="units\difference_unit.hpp">
       <Filter>Header Files\units</Filter>
     </ClInclude>
+    <ClInclude Include="units\systems\si.hpp">
+      <Filter>Header Files\units\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="units\unit_system.hpp">
+      <Filter>Header Files\units</Filter>
+    </ClInclude>
+    <ClInclude Include="units\detail\literal_helper.hpp">
+      <Filter>Header Files\units\detail</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tests\static_tests.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="tests\si_tests.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
   </ItemGroup>
 </Project>

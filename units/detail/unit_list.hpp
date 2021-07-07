@@ -6,7 +6,7 @@ namespace units
 	namespace detail
 	{
 		//! empty unit_list, also used as a sentinal type for unit_list
-		struct empty_list { using unit = void; using next = void; };
+		struct empty_list { using unit = void; using next = empty_list; };
 
 		/*!
 		 * unit_list provides a compile-time list of unit types.

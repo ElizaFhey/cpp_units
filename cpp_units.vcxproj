@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>ClangCL</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -117,7 +117,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="units\compound_unit.hpp" />
+    <ClInclude Include="units\detail\literal_helper.hpp" />
     <ClInclude Include="units\detail\unit_comparisons.hpp" />
     <ClInclude Include="units\detail\unit_list.hpp" />
     <ClInclude Include="units\difference_unit.hpp" />
@@ -150,11 +151,17 @@
     <ClInclude Include="units\fundamental_unit.hpp" />
     <ClInclude Include="units\linear_unit.hpp" />
     <ClInclude Include="units\quantity.hpp" />
+    <ClInclude Include="units\systems\si.hpp" />
     <ClInclude Include="units\units.hpp" />
     <ClInclude Include="units\unit_conversion.hpp" />
+    <ClInclude Include="units\unit_system.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="tests\si_tests.cpp" />
     <ClCompile Include="tests\static_tests.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
